@@ -227,7 +227,7 @@ server <- (function(input, output, session) {
 
 
     #Plot data table: wide format so that users can easily see the features
-    output$proteinDataTable <- renderDataTable({
+    output$proteinDataTable <- DT::renderDataTable({
         #Transform dataset into wide format
         proteindf_wide <- variables$proteindf %>% as_tibble() %>%
             pivot_wider(id_cols = c("id", "features", "rowname"),
