@@ -1,0 +1,177 @@
+#' Shiny app server object
+#' @import shiny shinyhelper DT plotly shinybusy
+# create the shiny application user interface
+
+library(shiny)
+library(shinyhelper)
+library(DT)
+library(plotly)
+library(shinybusy)
+
+
+# Define UI for application that draws a histogram
+ui <- (navbarPage(
+
+    # Application title
+    title = "Visualisation",
+
+    # Add the tabs you want present in the app
+    #First tab: upload necessary data files
+    tabPanel(title = "Data input",
+
+         add_busy_spinner(spin = "fading-circle"),
+
+         # Show two input data columns
+
+         # Input intensity file
+         fluidRow(
+             column(width = 6,
+                helper(fileInput(inputId = "data", label = "Upload intensity file"),
+                    type = "markdown", content = "peptidesfile")),
+
+         # Input metadata file
+            column(width = 6,
+                helper(fileInput(inputId = "metadata", label = "Upload metadata file"),
+                       type = "markdown", content = "metadatafile"))
+         ),
+
+        #Now add another row for input reading options
+        fluidRow(
+            #Options for the peptides intensity file
+            column(width = 6,
+                   tags$div(tags$h4("Options")),
+                   checkboxInput(inputId = "header", label = "header"),
+                   numericInput(inputId = "skip", label = "Number of lines to skip", value=0, min=0),
+                   radioButtons(inputId = "separator", label = "File separator",
+                                choices = c("comma" = ",",
+                                            "space" = " ",
+                                            "semicolon" = ";",
+                                            "tab" = "\t")),
+                   textInput(inputId = "intensityIdentifier", label = "Intensity columns identifier"),
+                   numericInput(inputId = "proteinColumn", label = "Protein column", value=1, min=1),
+                   numericInput(inputId = "sequenceColumn", label = "Sequence column", value=2, min=1),
+                   numericInput(inputId = "modificationsColumn", label = "Modifications column", value=3, min=1)
+                   ),
+            #Option for the metadata file
+            column(width = 5,
+                   tags$div(tags$h4("Options")),
+                   radioButtons(inputId = "separatorMetadata", label = "file separator",
+                                choices = c("comma" = ",",
+                                            "space" = " ",
+                                            "semicolon" = ";",
+                                            "tab" = "\t"))
+                   )
+        ),
+        #Add action button for reading in the data
+        fluidRow(
+            column(width=4,offset=8,
+                   actionButton(inputId = "go",
+                                label = "Read in data",
+                                style="color: #fff; background-color: #337ab7; border-color: #2e6da4"))
+        )
+        ),
+
+    #Second tab: preprocessing: options + visualisations
+    tabPanel(title = "Preprocessing",
+
+         add_busy_spinner(spin = "fading-circle"),
+         #Add row for preprocessing options
+         fluidRow(
+             column(width = 3,
+                helper(tags$div(tags$h4("Preprocessing options")),
+                       type = "markdown", content = "preprocessingoptions"),
+                #I could potentially change this to juist input?
+                radioButtons(inputId = "logTransform",
+                      label = "Logarithmic transformation",
+                      choiceNames = c("none","log2", "log10", "natural"),
+                      choiceValues = c("none", 2, 10, exp(1)))
+                ),
+             column(width = 3,
+                    numericInput(inputId = "nnonzero",
+                                 label = "Minimum number of nonzero columns", value=2, min=0),
+                    radioButtons(inputId = "normalisationMethodGlobal",
+                                 label = "Normalisation",
+                                 choices = c("none","center.mean", "center.median")
+                                 )
+                ),
+             column(width = 3,
+                    tags$div(tags$h4("Stats before preprocessing")),
+                    tableOutput("statstable")),
+             column(width = 3,
+                    tags$div(tags$h4("Stats after preprocessing")),
+                    tableOutput("statstableafter")
+                    )
+            ),
+         #Add row for preprocessing button
+         fluidRow(
+             column(width=4,offset=4,
+                    actionButton(inputId = "preprocess",
+                                 label = "Preprocess!",
+                                 style="color: #fff; background-color: #337ab7; border-color: #2e6da4"))
+         ),
+         #Add row for before plots
+         fluidRow(
+             column(width = 6,
+                    tags$div(tags$h4("Density plot before preprocessing")),
+                    plotlyOutput("densityBefore")
+                    ),
+             column(width = 6,
+                    tags$div(tags$h4("Density plot after preprocessing")),
+                    plotlyOutput("densityAfter")
+                    )
+            ),
+         #Add row for after plots
+         fluidRow(
+             column(width = 6,
+                    tags$div(tags$h4("Boxplot before preprocessing")),
+                    plotOutput("boxplotBefore")
+             ),
+             column(width = 6,
+                    tags$div(tags$h4("Boxplot after preprocessing")),
+                    plotOutput("boxplotAfter")
+             )
+         )
+         ),
+
+    #Third tab: actual data visualisation
+    tabPanel(title = "Data Visualisation",
+
+        add_busy_spinner(spin = "fading-circle"),
+
+        #Add row for protein dropdown menu, normalisation options and data table
+        fluidRow(
+            #Protein dropdown menu and normalisation options
+            column(width = 3,
+                tags$div(tags$h4("Protein dropdown menu")),
+                selectInput(inputId = "protein", label = "select protein", choices = ""),
+                helper(radioButtons(inputId = "normalisationMethod",
+                                    label = "Usage options",
+                             choiceNames = c("absolute abundance",
+                                             "relative abundance (center mean)",
+                                             "relative abundance (center median)"),
+                             choiceValues = c("none","center.mean", "center.median")),
+                       type = "markdown", content = "normalisationfile")
+                ),
+            #Data table
+            column(width = 9,
+                   tags$div(tags$h4("Corresponding protein data table")),
+                   DTOutput("proteinDataTable"))
+            ),
+        fluidRow(column(width = 3, offset=2,
+                        actionButton(inputId = "deselect",
+                                     label = "Deselect all features",
+                                     style="color: #fff; background-color: #337ab7; border-color: #2e6da4"))),
+        #Add row for the plots themselves
+        fluidRow(
+            column(width = 6,
+                   tags$div(tags$h4("Lineplot of log-normalised features")),
+                   plotlyOutput("lineplot")
+                   ),
+            column(width = 6,
+                   tags$div(tags$h4("Boxplot of selected features")),
+                   plotlyOutput("boxplot")
+                   )
+            )
+        )
+    )
+)
