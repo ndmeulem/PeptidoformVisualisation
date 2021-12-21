@@ -9,7 +9,7 @@
 #' @example
 #' \dontrun{launchPeptidoformVisualisation()}
 #'
-#' @import shiny shinymeta shinyjs
+#' @import shiny shinymeta shinyjs BiocManager
 #'
 
 

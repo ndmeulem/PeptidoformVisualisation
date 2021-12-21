@@ -3,7 +3,7 @@
 #' @param input provided by shiny
 #' @param output provided by shiny
 #' @param session provided by shiny
-#' @import tidyverse shiny shinyhelper rmarkdown knitr msqrob2 QFeatures limma plotly ggplot2 DT wesanderson
+#' @import tidyverse shiny shinyhelper rmarkdown knitr msqrob2 QFeatures limma plotly ggplot2 DT wesanderson BiocManager
 
 library(shiny)
 library(shinyhelper)

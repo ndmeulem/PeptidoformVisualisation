@@ -1,5 +1,5 @@
 #' Shiny app server object
-#' @import shiny shinyhelper DT plotly shinybusy
+#' @import shiny shinyhelper DT plotly shinybusy BiocManager
 # create the shiny application user interface
 
 library(shiny)
