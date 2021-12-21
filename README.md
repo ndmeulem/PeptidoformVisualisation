@@ -1,5 +1,5 @@
 # PeptidoformVisualisation
-R package for launching shiny app
+R package for launching shiny app to visualise Peptidoform data
 
 # The package
 This R package contains all code to launch a shiny app for the visualisation of quantitative peptidoform data. 
