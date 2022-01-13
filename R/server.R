@@ -16,7 +16,7 @@ library(limma)
 
 server <- (function(input, output, session) {
 
-    observe_helpers(help_dir = "helpfiles")
+    observe_helpers(help_dir = system.file("helpfiles", package="PeptidoformVisualisation"))
 
     #add variables to work with
     variables <- reactiveValues(pe = NULL)
