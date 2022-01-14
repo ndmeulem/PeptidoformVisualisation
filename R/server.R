@@ -233,8 +233,18 @@ server <- (function(input, output, session) {
             pivot_wider(id_cols = c("id", "features", "rowname"),
                         names_from = "id", values_from = "value")
         variables$proteindf_wide = proteindf_wide
-        DT::datatable(proteindf_wide, options = list(
-            paging = TRUE, pageLength = 4)
+        DT::datatable(proteindf_wide,
+            extensions = "Buttons",
+            options = list(
+            paging = TRUE,
+            pageLength = 4,
+            searching = TRUE,
+            dom = "Bfrtip",
+            buttons = list("copy", list(
+              extend = "collection",
+              buttons = c("csv", "excel"),
+              text = "Download"
+            )))
             ) %>% DT::formatStyle(names(proteindf_wide), lineHeight="80%")
     })
 
