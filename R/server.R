@@ -16,6 +16,8 @@ library(limma)
 
 server <- (function(input, output, session) {
 
+    print(system.file("helpfiles", package="PeptidoformVisualisation"))
+
     observe_helpers(help_dir = system.file("helpfiles", package="PeptidoformVisualisation"))
 
     #add variables to work with
@@ -85,7 +87,10 @@ server <- (function(input, output, session) {
           p1 <- ggplot(assay_pe_long, aes(x=intensity, color=sample)) +
             geom_density(show.legend = F) +
             scale_colour_manual(values = pal)
-          p1 <- ggplotly(p1) %>% layout(showlegend=F)
+          p1 <- ggplotly(p1) %>% layout(showlegend=F) %>%
+            config(toImageButtonOptions = list(
+              format = "png", filename = "densityplot_before", width = 1920, height = 1080
+            ))
           p1
         })
         #Boxplot
@@ -167,7 +172,10 @@ server <- (function(input, output, session) {
         p1 <- ggplot(assay_pe_long, aes(x=intensity, color=sample)) +
           geom_density(show.legend = F) +
           scale_colour_manual(values = pal)
-        p1 <- ggplotly(p1) %>% layout(showlegend=F)
+        p1 <- ggplotly(p1) %>% layout(showlegend=F) %>%
+          config(toImageButtonOptions = list(
+            format = "png", filename = "densityplot_after", width = 1920, height = 1080
+          ))
         p1
       })
       #Boxplot
@@ -189,7 +197,7 @@ server <- (function(input, output, session) {
                  input$normalisationMethod
                  input$preprocess}, {
 
-        #Get datafor particular protein
+        #Get data for particular protein
         proteinpe <- variables$pe2[grepl(input$protein,
                                 rowData(variables$pe2[["peptideLogNorm"]])[[input$proteinColumn]])]
 
@@ -225,9 +233,9 @@ server <- (function(input, output, session) {
         }, ignoreInit = TRUE)
 
 
-
+    #Visualisation
     #Plot data table: wide format so that users can easily see the features
-    output$proteinDataTable <- DT::renderDataTable({
+    output$proteinDataTable <- DT::renderDataTable(server = FALSE, {
         #Transform dataset into wide format
         proteindf_wide <- variables$proteindf %>% as_tibble() %>%
             pivot_wider(id_cols = c("id", "features", "rowname"),
@@ -243,8 +251,11 @@ server <- (function(input, output, session) {
             buttons = list("copy", list(
               extend = "collection",
               buttons = c("csv", "excel"),
-              text = "Download"
-            )))
+              text = "Download",
+              exportOptions = list(
+                modifier = list(page="all")
+              ))
+            ))
             ) %>% DT::formatStyle(names(proteindf_wide), lineHeight="80%")
     })
 
@@ -281,7 +292,10 @@ server <- (function(input, output, session) {
       #Plot base lineplot already when nothing is selected
       if (is.null(rows_selected_d())){
         #turn ggplot into plotly object
-        p1 <- ggplotly(p1) %>% layout(showlegend=F)
+        p1 <- ggplotly(p1) %>% layout(showlegend=F) %>%
+          config(toImageButtonOptions = list(
+            format = "png", filename = "lineplot", width = 1920, height = 1080
+          ))
         print(p1)
         }
 
@@ -308,7 +322,10 @@ server <- (function(input, output, session) {
                   show.legend=FALSE,
                   data = as_tibble(filter_proteindf))
 
-          hlp1 <- ggplotly(hlp1) %>% layout(showlegend=F)
+          hlp1 <- ggplotly(hlp1) %>% layout(showlegend=F) %>%
+            config(toImageButtonOptions = list(
+              format = "png", filename = "lineplot", width = 1920, height = 1080
+            ))
           print(hlp1)
         }
     })
@@ -332,7 +349,10 @@ server <- (function(input, output, session) {
 
       #If nothing is selected, already print base boxplot
       if(is.null(rows_selected_d())){
-        boxplot <- ggplotly(boxplot) %>% layout(showlegend=F)
+        boxplot <- ggplotly(boxplot) %>% layout(showlegend=F) %>%
+          config(toImageButtonOptions = list(
+            format = "png", filename = "boxplot", width = 1920, height = 1080
+          ))
         print(boxplot)
       }
       #If something is selected, highlight selected dots
@@ -346,7 +366,10 @@ server <- (function(input, output, session) {
               geom_point(data=filter_proteindf,
                          aes(x=as.factor(id),y=value), color = "red", size = 1.2)
 
-            boxplot_select <- ggplotly(boxplot_select) %>% layout(showlegend=F)
+            boxplot_select <- ggplotly(boxplot_select) %>% layout(showlegend=F) %>%
+              config(toImageButtonOptions = list(
+                format = "png", filename = "boxplot", width = 1920, height = 1080
+              ))
             print(boxplot_select)
             }
     })
