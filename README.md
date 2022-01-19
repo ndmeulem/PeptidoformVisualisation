@@ -10,6 +10,7 @@ With the app, the user can perform preprocessing (normalisation, log transformat
 In RStudio (or another IDE), use 
 
 ```
+if (!require("devtools")) {install.packages("devtools")}
 devtools::install_github("ndmeulem/PeptidoformVisualisation") 
 ```
 
