@@ -16,7 +16,7 @@ library(limma)
 
 server <- (function(input, output, session) {
 
-    print(system.file("helpfiles", package="PeptidoformVisualisation"))
+    #print(system.file("helpfiles", package="PeptidoformVisualisation"))
 
     observe_helpers(help_dir = system.file("helpfiles", package="PeptidoformVisualisation"))
 
@@ -50,6 +50,12 @@ server <- (function(input, output, session) {
         for (col in idcols){
             colData(pe)[as.character(col)] <- as.factor(metadataFile[[as.character(col)]])
         }
+
+        #Update selectInput for arranging of x-axis
+        updateSelectInput(session, "x_axis",
+                          label = "select variable",
+                          choices = variables$idcols,
+                          selected = variables$idcols[1])
 
         #Filtering steps: already calculate nNonZero, zero -> NA is necessary
         rowData(pe[["peptideRaw"]])$nNonZero <- rowSums(assay(pe[["peptideRaw"]]) > 0)
@@ -146,6 +152,12 @@ server <- (function(input, output, session) {
                         choices = rowData(pe2[["peptideLogNorm"]])[[input$proteinColumn]],
                         selected = rowData(pe2[["peptideLogNorm"]])[[input$proteinColumn]][1])
 
+      #Update selectInput for arranging of x-axis
+      updateSelectInput(session, "x_axis",
+                        label = "select variable",
+                        choices = variables$idcols,
+                        selected = variables$idcols[1])
+
       #Calculate some quick stats about the data after preprocessing
       features = paste(rowData(pe2[["peptideLogNorm"]])[,2], rowData(pe2[["peptideLogNorm"]])[,3],sep="_")
       stats = tibble(stats = c("number of unique proteins",
@@ -191,11 +203,14 @@ server <- (function(input, output, session) {
     })
 
     #If user clicks on radiobuttons for normalisation or selects different protein,
-    #or user changes preprocessing settings,
+    #or user changes preprocessing settings, or chooses to arrange x-axis differently on plots,
     #variables$proteindf needs to update to the correct version
     observeEvent({input$protein
                  input$normalisationMethod
-                 input$preprocess}, {
+                 input$preprocess
+                 input$x_axis}, {
+
+        req(input$x_axis)
 
         #Get data for particular protein
         proteinpe <- variables$pe2[grepl(input$protein,
@@ -227,6 +242,10 @@ server <- (function(input, output, session) {
             rep(paste(rowData(proteinpe[["peptideLogNorm"]])[,input$sequenceColumn],
                       rowData(proteinpe[["peptideLogNorm"]])[,input$modificationsColumn],sep="_"),
                       length(unique(df$biorepeat)))
+        #arrange according to input$x_axis
+        df <- as.data.frame(df)
+        df <- df[order(df[,input$x_axis]),]
+        df$id = factor(df$id, unique(df$id))
 
         #Save dataset
         variables$proteindf <- df

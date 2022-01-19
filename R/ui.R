@@ -171,7 +171,13 @@ ui <- (navbarPage(
                    tags$div(tags$h4("Boxplot of selected features")),
                    plotlyOutput("boxplot")
                    )
-            )
+            ),
+        #Add row for the arrange x-axis dropdown menu
+        fluidRow(
+            column(width = 3,
+                   tags$div(tags$h4("Arrange x-axis based on")),
+                   selectInput(inputId = "x_axis", label = "select variable", choices = ""))
+        )
         )
     )
 )
