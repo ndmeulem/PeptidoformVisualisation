@@ -10,7 +10,11 @@ library(shinybusy)
 
 
 # Define UI for application that draws a histogram
-ui <- (navbarPage(
+ui <- function() {
+    shiny::addResourcePath("PeptidoformVisualisation", system.file("helpfiles", package="PeptidoformVisualisation"))
+    (navbarPage(
+
+    shinyjs::useShinyjs(),
 
     # Application title
     title = "Visualisation",
@@ -185,3 +189,4 @@ ui <- (navbarPage(
         )
     )
 )
+}

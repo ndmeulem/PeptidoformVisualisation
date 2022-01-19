@@ -17,8 +17,9 @@ library(limma)
 server <- (function(input, output, session) {
 
     #print(system.file("helpfiles", package="PeptidoformVisualisation"))
-
-    observe_helpers(help_dir = system.file("helpfiles", package="PeptidoformVisualisation"))
+    shiny::addResourcePath("PeptidoformVisualisation", system.file("helpfiles", package="PeptidoformVisualisation"))
+    shinyhelper::observe_helpers(help_dir = system.file("helpfiles", package="PeptidoformVisualisation"),
+                    withMathJax = TRUE)
 
     #add variables to work with
     variables <- reactiveValues(pe = NULL)
