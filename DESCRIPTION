@@ -6,6 +6,7 @@ Author: Nina Demeulemeester
 Maintainer: The package maintainer <nina.demeulemeester@ugent.be>
 Description: This package will launch a shiny app with which you can visualise quantitative proteomics data (on the peptidoform level).
 Depends: R (>= 4.1), tidyverse, QFeatures, shiny, shinyhelper, shinybusy, DT, ggplot2, limma, plotly, msqrob2, knitr, rmarkdown, wesanderson, shinyjs, shinymeta, BiocManager 
+biocViews:
 License: Artistic-2.0
 Encoding: UTF-8
 LazyData: true
