@@ -19,7 +19,8 @@ ui <- (navbarPage(
     #First tab: upload necessary data files
     tabPanel(title = "Data input",
 
-         add_busy_spinner(spin = "fading-circle"),
+         add_busy_spinner(spin = "flower",
+                          position = "full-page"),
 
          # Show two input data columns
 
@@ -68,8 +69,11 @@ ui <- (navbarPage(
                    actionButton(inputId = "go",
                                 label = "Read in data",
                                 style="color: #fff; background-color: #337ab7; border-color: #2e6da4"))
-        )
         ),
+        fluidRow(
+            column(width=4,offset=8,
+                   textOutput("read_in_data"))
+        )),
 
     #Second tab: preprocessing: options + visualisations
     tabPanel(title = "Preprocessing",

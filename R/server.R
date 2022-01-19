@@ -45,6 +45,10 @@ server <- (function(input, output, session) {
         metadataFile <- read.delim(input$metadata$datapath,
                                    sep = input$separatorMetadata)
 
+        output$read_in_data <- renderText({
+          "Data read in complete. You may now continue to the preprocessing tab."
+        })
+
         #Make coldata for the pe object based on metadatafile
         idcols <- colnames(metadataFile)[2:length(colnames(metadataFile))]
         for (col in idcols){
