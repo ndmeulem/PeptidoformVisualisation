@@ -27,6 +27,40 @@ server <- (function(input, output, session) {
     #When the user clicks read data, it will trigger a number of events:
     #get ecols, read in files, get coldata, do filtering steps
 
+
+    observeEvent(input$example_data, {
+
+
+          intensity_file = paste0(system.file("example_data", package="PeptidoformVisualisation"),
+                                  "/example_intensitiesfile.csv")
+
+          metadata_file = paste0(system.file("example_data", package="PeptidoformVisualisation"),
+                                  "/example_metadatafile.csv")
+
+          #Get intensity columns
+          ecols <- grep("2021",
+                        names(read.delim(intensity_file,
+                                         skip = 2,
+                                         sep = ",", header = TRUE)))
+
+          #Read in peptides intensity file into QFeatures object
+          pe <- readQFeatures(intensity_file,
+                              ecol = ecols,
+                              name = "peptideRaw", sep = ",",
+                              skip = 2)
+
+          #Read in metadatafile
+          metadataFile <- read.delim(metadata_file,
+                                     sep = ",")
+
+          variables$pe <- pe
+          variables$metadataFile <- metadataFile
+
+          output$read_in_example_data <- renderText({
+            "Data read in complete. You may now continue to the preprocessing tab."
+          })
+    })
+
     observeEvent(input$go, {
         #make sure files are actually uploaded
         req(input$data$name, input$metadata$name, input$intensityIdentifier)
@@ -46,14 +80,21 @@ server <- (function(input, output, session) {
         metadataFile <- read.delim(input$metadata$datapath,
                                    sep = input$separatorMetadata)
 
+        variables$pe <- pe
+        variables$metadataFile <- metadataFile
+
         output$read_in_data <- renderText({
           "Data read in complete. You may now continue to the preprocessing tab."
         })
+    })
+
+    observeEvent({input$go
+                  input$example_data}, {
 
         #Make coldata for the pe object based on metadatafile
-        idcols <- colnames(metadataFile)[2:length(colnames(metadataFile))]
+        idcols <- colnames(variables$metadataFile)[2:length(colnames(variables$metadataFile))]
         for (col in idcols){
-            colData(pe)[as.character(col)] <- as.factor(metadataFile[[as.character(col)]])
+            colData(variables$pe)[as.character(col)] <- as.factor(variables$metadataFile[[as.character(col)]])
         }
 
         #Update selectInput for arranging of x-axis
@@ -63,8 +104,8 @@ server <- (function(input, output, session) {
                           selected = variables$idcols[1])
 
         #Filtering steps: already calculate nNonZero, zero -> NA is necessary
-        rowData(pe[["peptideRaw"]])$nNonZero <- rowSums(assay(pe[["peptideRaw"]]) > 0)
-        pe <- zeroIsNA(pe, i = "peptideRaw")
+        rowData(variables$pe[["peptideRaw"]])$nNonZero <- rowSums(assay(variables$pe[["peptideRaw"]]) > 0)
+        pe <- zeroIsNA(variables$pe, i = "peptideRaw")
 
         #Calculate some quick stats about the data
         features = paste(rowData(pe[["peptideRaw"]])[,2], rowData(pe[["peptideRaw"]])[,3],sep="_")
@@ -76,12 +117,6 @@ server <- (function(input, output, session) {
                          length(unique(features)))
 
         output$statstable <- renderTable(stats)
-
-        #Update selectInput for data table
-        # updateSelectInput(session, "protein",
-        #     label = "Protein",
-        #     choices = rowData(pe[["peptideRaw"]])[[input$proteinColumn]],
-        #     selected = rowData(pe[["peptideRaw"]])[[input$proteinColumn]][1])
 
         #Plot the before preprocessing plots
         #for ggplot: pivot the intensity assay to long format
@@ -115,7 +150,7 @@ server <- (function(input, output, session) {
 
         variables$pe <- pe
         variables$idcols <- idcols
-    })
+    }, ignoreNULL = FALSE, ignoreInit = TRUE)
 
     #Preprocessing
     #User will click on preprocessing button, then do preprocessing as indicated by user

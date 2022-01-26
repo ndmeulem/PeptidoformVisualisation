@@ -4,7 +4,7 @@ Peptide intensity input file
 What is expected?
 ------------------
 
-We expect a text file which contains at least the protein names, peptide sequences, modifications per peptide and intensities. If multiple samples were run in the same experiment, each sample should have its own intensity column.
+If you upload your own data, we expect a text file which contains at least the protein names, peptide sequences, modifications per peptide and intensities. If multiple samples were run in the same experiment, each sample should have its own intensity column. 
 
 Example
 -----------
@@ -23,3 +23,5 @@ Options to read in file
 - **Protein column**: The number of the column that contains the protein ID. In the example above this would be 1.
 - **Sequence column**: The number of the column that contains the peptide sequence. In the example above this would be 2.
 - **Modifications column**: The number of the column that contains the peptide modification. In the example above this would be 3.
+
+Once you have filled out all options correctly, click on the button "Read in your own data". 

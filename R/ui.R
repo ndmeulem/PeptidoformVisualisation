@@ -7,14 +7,15 @@ library(shinyhelper)
 library(DT)
 library(plotly)
 library(shinybusy)
+library(shinyWidgets)
 
 
 # Define UI for application that draws a histogram
 ui <- function() {
     shiny::addResourcePath("PeptidoformVisualisation", system.file("helpfiles", package="PeptidoformVisualisation"))
-    (navbarPage(
+    shinyjs::useShinyjs()
 
-    shinyjs::useShinyjs(),
+    (navbarPage(
 
     # Application title
     title = "Visualisation",
@@ -25,6 +26,23 @@ ui <- function() {
 
          add_busy_spinner(spin = "flower",
                           position = "full-page"),
+
+         fluidRow(
+             column(width=4,
+                    helper(shinyWidgets::actionBttn(inputId = "example_data",
+                                 label = "Read in example data",
+                                 color = "royal",
+                                 style="bordered",
+                                 size = "sm"),
+                    type = "markdown", content = "example_data"))
+         ),
+
+         fluidRow(
+             column(width=4,
+                    textOutput("read_in_example_data"))
+         ),
+
+         br(),
 
          # Show two input data columns
 
@@ -70,9 +88,11 @@ ui <- function() {
         #Add action button for reading in the data
         fluidRow(
             column(width=4,offset=8,
-                   actionButton(inputId = "go",
-                                label = "Read in data",
-                                style="color: #fff; background-color: #337ab7; border-color: #2e6da4"))
+                   shinyWidgets::actionBttn(inputId = "go",
+                                label = "Read in your own data",
+                                style="bordered",
+                                color="royal",
+                                size="sm"))
         ),
         fluidRow(
             column(width=4,offset=8,
