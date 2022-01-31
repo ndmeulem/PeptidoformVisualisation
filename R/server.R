@@ -3,7 +3,7 @@
 #' @param input provided by shiny
 #' @param output provided by shiny
 #' @param session provided by shiny
-#' @import tidyverse shiny shinyhelper rmarkdown knitr msqrob2 QFeatures limma plotly ggplot2 DT wesanderson BiocManager
+#' @import tidyverse shiny shinyhelper rmarkdown knitr msqrob2 QFeatures limma plotly ggplot2 DT wesanderson BiocManager utils
 
 library(shiny)
 library(shinyhelper)
@@ -16,7 +16,7 @@ library(limma)
 
 server <- (function(input, output, session) {
 
-    #print(system.file("helpfiles", package="PeptidoformVisualisation"))
+    #Activate the helper files
     shiny::addResourcePath("PeptidoformVisualisation", system.file("helpfiles", package="PeptidoformVisualisation"))
     shinyhelper::observe_helpers(help_dir = system.file("helpfiles", package="PeptidoformVisualisation"),
                     withMathJax = TRUE)
@@ -24,9 +24,8 @@ server <- (function(input, output, session) {
     #add variables to work with
     variables <- reactiveValues(pe = NULL)
 
-    #When the user clicks read data, it will trigger a number of events:
+    #When the user clicks read data or example data, it will trigger a number of events:
     #get ecols, read in files, get coldata, do filtering steps
-
 
     observeEvent(input$example_data, {
 
@@ -164,7 +163,7 @@ server <- (function(input, output, session) {
                            i = "peptideRaw", name = "peptideLog")
       }
       else if (input$logTransform == "none"){
-        #This probably means the data are already logtransformed
+        #This probably means the data are already logtransformed, or it is not necessary
         #So I will manually add the peptideRaw as peptideLog
         pe2 <- addAssay(pe2, pe2[["peptideRaw"]], "peptideLog")
       }

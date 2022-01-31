@@ -1,5 +1,5 @@
 #' Shiny app server object
-#' @import shiny shinyhelper DT plotly shinybusy BiocManager
+#' @import shiny shinyhelper shinyWidgets DT plotly shinybusy BiocManager
 # create the shiny application user interface
 
 library(shiny)
@@ -10,7 +10,6 @@ library(shinybusy)
 library(shinyWidgets)
 
 
-# Define UI for application that draws a histogram
 ui <- function() {
     shiny::addResourcePath("PeptidoformVisualisation", system.file("helpfiles", package="PeptidoformVisualisation"))
     shinyjs::useShinyjs()
@@ -27,6 +26,7 @@ ui <- function() {
          add_busy_spinner(spin = "flower",
                           position = "full-page"),
 
+         #Example data button
          fluidRow(
              column(width=4,
                     helper(shinyWidgets::actionBttn(inputId = "example_data",
@@ -37,6 +37,7 @@ ui <- function() {
                     type = "markdown", content = "example_data"))
          ),
 
+         #Text output when example data has been read in
          fluidRow(
              column(width=4,
                     textOutput("read_in_example_data"))
@@ -94,6 +95,7 @@ ui <- function() {
                                 color="royal",
                                 size="sm"))
         ),
+        #Text output for when data has been read in
         fluidRow(
             column(width=4,offset=8,
                    textOutput("read_in_data"))
@@ -108,8 +110,8 @@ ui <- function() {
              column(width = 3,
                 helper(tags$div(tags$h4("Preprocessing options")),
                        type = "markdown", content = "preprocessingoptions"),
-                #I could potentially change this to juist input?
-                radioButtons(inputId = "logTransform",
+
+                    radioButtons(inputId = "logTransform",
                       label = "Logarithmic transformation",
                       choiceNames = c("none","log2", "log10", "natural"),
                       choiceValues = c("none", 2, 10, exp(1)))
