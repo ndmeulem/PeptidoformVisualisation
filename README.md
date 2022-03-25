@@ -11,7 +11,7 @@ In RStudio (or another IDE), use
 
 ```
 if (!require("devtools")) {install.packages("devtools")}
-devtools::install_github("ndmeulem/PeptidoformVisualisation") 
+devtools::install_github("statOmics/PeptidoformVisualisation") 
 ```
 
 This will install the package and its dependencies.
