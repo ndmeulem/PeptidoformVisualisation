@@ -273,7 +273,7 @@ server <- (function(input, output, session) {
             df[as.character(col)] = as.factor(colH[df$colname, col])
         }
         #add id column
-        df <- df %>% as_tibble() %>% unite("id", all_of(variables$idcols),sep="_", remove = F)
+        df <- df %>% as_tibble() %>% tidyr::unite("id", all_of(variables$idcols),sep="_", remove = F)
         #add biorepeat column
         df$biorepeat <- df$id %>% as.factor %>% as.double
         #add features column
@@ -295,9 +295,8 @@ server <- (function(input, output, session) {
     #Plot data table: wide format so that users can easily see the features
     output$proteinDataTable <- DT::renderDataTable(server = FALSE, {
         #Transform dataset into wide format
-        proteindf_wide <- variables$proteindf %>% as_tibble() %>%
-            pivot_wider(id_cols = c("id", "features", "rowname"),
-                        names_from = "id", values_from = "value")
+        proteindf_wide <- variables$proteindf %>% tibble::as_tibble() %>%
+            tidyr::pivot_wider(names_from = "id", values_from = "value")
         variables$proteindf_wide = proteindf_wide
         DT::datatable(proteindf_wide,
             extensions = "Buttons",
