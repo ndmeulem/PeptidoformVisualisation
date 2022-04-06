@@ -11,7 +11,7 @@ In RStudio (or another IDE), use
 
 ```
 if (!require("devtools")) {install.packages("devtools")}
-devtools::install_github("ndmeulem/PeptidoformVisualisation") 
+devtools::install_github("statOmics/PeptidoformViz") 
 ```
 
 This will install the package and its dependencies.
@@ -20,11 +20,11 @@ This will install the package and its dependencies.
 To load package: 
 
 ```
-library(PeptidoformVisualisation)
+library(PeptidoformViz)
 ```
 
 To launch shiny app, use: 
 
 ```
-launchPeptidoformVisualisation()
+launchPeptidoformViz()
 ```

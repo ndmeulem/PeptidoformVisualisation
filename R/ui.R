@@ -11,7 +11,7 @@ library(shinyWidgets)
 
 
 ui <- function() {
-    shiny::addResourcePath("PeptidoformVisualisation", system.file("helpfiles", package="PeptidoformVisualisation"))
+    shiny::addResourcePath("PeptidoformViz", system.file("helpfiles", package="PeptidoformViz"))
     shinyjs::useShinyjs()
 
     (navbarPage(

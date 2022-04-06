@@ -1,4 +1,4 @@
-Package: PeptidoformVisualisation
+Package: PeptidoformViz
 Type: Package
 Title: Visualisation of quantitative peptidoform data
 Version: 0.1.0

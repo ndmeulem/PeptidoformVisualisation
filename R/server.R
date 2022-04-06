@@ -17,8 +17,8 @@ library(limma)
 server <- (function(input, output, session) {
 
     #Activate the helper files
-    shiny::addResourcePath("PeptidoformVisualisation", system.file("helpfiles", package="PeptidoformVisualisation"))
-    shinyhelper::observe_helpers(help_dir = system.file("helpfiles", package="PeptidoformVisualisation"),
+    shiny::addResourcePath("PeptidoformViz", system.file("helpfiles", package="PeptidoformViz"))
+    shinyhelper::observe_helpers(help_dir = system.file("helpfiles", package="PeptidoformViz"),
                     withMathJax = TRUE)
 
     #add variables to work with
@@ -30,10 +30,10 @@ server <- (function(input, output, session) {
     observeEvent(input$example_data, {
 
 
-          intensity_file = paste0(system.file("example_data", package="PeptidoformVisualisation"),
+          intensity_file = paste0(system.file("example_data", package="PeptidoformViz"),
                                   "/example_intensitiesfile.csv")
 
-          metadata_file = paste0(system.file("example_data", package="PeptidoformVisualisation"),
+          metadata_file = paste0(system.file("example_data", package="PeptidoformViz"),
                                   "/example_metadatafile.csv")
 
           #Get intensity columns
