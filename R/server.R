@@ -296,7 +296,7 @@ server <- (function(input, output, session) {
     output$proteinDataTable <- DT::renderDataTable(server = FALSE, {
         #Transform dataset into wide format
         proteindf_wide <- variables$proteindf %>% tibble::as_tibble() %>%
-            tidyr::pivot_wider(names_from = "id", values_from = "value")
+            tidyr::pivot_wider(id_cols = c("rowname", "features"), names_from = "id", values_from = "value")
         variables$proteindf_wide = proteindf_wide
         DT::datatable(proteindf_wide,
             extensions = "Buttons",
@@ -335,16 +335,18 @@ server <- (function(input, output, session) {
       pal <- wesanderson::wes_palette("Darjeeling1",
                                       length(variables$proteindf_wide$features),
                                       type = "continuous")
+
       #base lineplot (ggplot)
       p1 <- ggplot(
         data = variables$proteindf %>% as.data.frame,
-        aes(x = as.factor(id), y = value, group = rowname,col=rowname)) +
+        aes(x = as.factor(id), y = value, group = rowname,colour=rowname)) +
         geom_line(show.legend = F)  +
+        scale_colour_manual(values = pal) +
         ggtitle("log2-normalised data") +
         xlab("sample id") +
         ylab("Intensity (log2)") +
-        theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-        scale_colour_manual(values = pal)
+        theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
 
       #Plot base lineplot already when nothing is selected
       if (is.null(rows_selected_d())){
