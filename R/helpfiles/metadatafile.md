@@ -4,7 +4,7 @@ Metadata input file
 What is expected?
 ------------------------
 
-We expect a file that contains the names of the intensity columns in one column and in the other columns identifying information. These columns should contain at least enough information so that each row represents one unique ID.
+We expect a file that contains the names of the intensity columns in one column and in the other columns identifying information. These columns should contain at least enough information so that each row represents one unique ID (without taking the intensity column into account).
 
 
 Example 
