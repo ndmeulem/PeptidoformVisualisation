@@ -206,6 +206,7 @@ server <- (function(input, output, session) {
                        length(unique(rowData(pe2[["peptideLogNorm"]])$Sequence)),
                        length(unique(features)))
 
+
       output$statstableafter <- renderTable(stats)
 
       #Plot the after preprocessing plots
@@ -250,7 +251,6 @@ server <- (function(input, output, session) {
                  input$x_axis}, {
 
         req(input$x_axis)
-
         #Get data for particular protein
         proteinpe <- variables$pe2[grepl(input$protein,
                                 rowData(variables$pe2[["peptideLogNorm"]])[[input$proteinColumn]])]
@@ -268,7 +268,6 @@ server <- (function(input, output, session) {
         }
 
         colH <- colData(proteinpe)
-
         for (col in variables$idcols){
             df[as.character(col)] = as.factor(colH[df$colname, col])
         }
@@ -285,7 +284,6 @@ server <- (function(input, output, session) {
         df <- as.data.frame(df)
         df <- df[order(df[,input$x_axis]),]
         df$id = factor(df$id, unique(df$id))
-
         #Save dataset
         variables$proteindf <- df
         }, ignoreInit = TRUE)

@@ -208,7 +208,40 @@ ui <- function() {
                    tags$div(tags$h4("Arrange x-axis based on")),
                    selectInput(inputId = "x_axis", label = "select variable", choices = ""))
         )
-        )
+        ),
+
+    #Fourth tab: model building with formula
+    tabPanel(title = "Model",
+
+        #Add row to build formula and visualise colData
+        fluidRow(
+          column(width = 5,
+                 helper(tags$div(tags$h4("Build model formula")),
+                        type = "markdown", content = "build_model_formula"),
+                 #list available variables
+                 tags$p("Following variables can be selected to build the model: "),
+                  tags$p(textOutput("available_modelvariables")),
+                 textInput("modelformula", label = "formula",
+                           placeholder = "~ var1 + var2*var3"),
+                 actionButton("fitModel", "Fit Model",
+                              style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+
+        ),
+        column(width = 7,
+               tags$div(tags$h4("Design variables")),
+               tableOutput("designVariables")
+               )
+
+    ),
+
+    #Add row to visualise design matrix
+      fluidRow(
+        column(width = 11,
+        tags$div(tags$h4("Visualise design")),
+        plotOutput("designmatrix")
+      ))
+
+    )
     )
 )
 }
