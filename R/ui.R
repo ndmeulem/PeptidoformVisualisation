@@ -221,7 +221,7 @@ ui <- function() {
                  #list available variables
                  tags$p("Following variables can be selected to build the model: "),
                   tags$p(textOutput("available_modelvariables")),
-                 textInput("modelformula", label = "formula",
+                 textInput("modelformula", label = "Design formula",
                            placeholder = "~ var1 + var2*var3"),
                  actionButton("fitModel", "Fit Model",
                               style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
@@ -234,14 +234,63 @@ ui <- function() {
 
     ),
 
-    #Add row to visualise design matrix
-      fluidRow(
-        column(width = 11,
-        tags$div(tags$h4("Visualise design")),
-        plotOutput("designmatrix")
-      ))
+      #Add row to visualise design matrix
+        fluidRow(
+          column(width = 11,
+          tags$div(tags$h4("Visualise design")),
+          plotOutput("designmatrix")
+        ))
 
-    )
+    ),
+
+    #Fifth tab: inference tab: make contrasts, plot volcano and table with
+    #significant ptms/pepforms (option)
+    tabPanel(title = "Inference",
+
+        #Add row to specify contrasts, choose significance level and choose to
+        #display ptms and/or pepforms
+        fluidRow(
+          #Specify contrasts
+          column(width = 4,
+                 helper(tags$div(tags$h4("Specify contrast")),
+                        type = "markdown", content = "specify_contrast"),
+                 #list available variables
+                 tags$p("Following parameters can be used in contrasts for hypothesis tests: "),
+                 tags$p(textOutput("available_parameters")),
+                 textInput("contrast", label = "Null hypothesis",
+                           placeholder = "parameter1 = 0"),
+                 ),
+          #Choose options
+          column(width = 4,
+                 numericInput("significancelevel", "Choose significance level",
+                              value = 0.05, min = 0, max = 1, step = 0.01),
+                 checkboxInput("onlysignificant", label = tags$strong("Only significant features in table"),
+                               value = T),
+                 ),
+          column(width = 4,
+                 radioButtons("whichfeatures", "Choose which features to display",
+                              choiceNames = c("only PTMs",
+                                              "only peptidoforms",
+                                              "both"),
+                              choiceValues = c("ptms","peptidoforms", "both")))
+
+        ),
+
+        #Add row for volcanoplot and significance table
+        fluidRow(
+          #volcanoplot
+          column(width = 6,
+                 tags$div(tags$h4("Volcano plot")),
+                 plotlyOutput("volcano")
+                 ),
+          #Results table
+          column(width = 6,
+                 tags$div(tags$h4("Results table")),
+                 DTOutput("significanceTable"))
+        )
+
+
+             )
     )
 )
 }
