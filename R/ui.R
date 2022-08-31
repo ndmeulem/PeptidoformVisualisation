@@ -121,7 +121,8 @@ ui <- function() {
                                  label = "Minimum number of nonzero columns", value=2, min=0),
                     radioButtons(inputId = "normalisationMethodGlobal",
                                  label = "Normalisation",
-                                 choices = c("none","center.mean", "center.median")
+                                 choiceNames = c("none","mean centering (DE)", "median centering (DE)", "robust (DU)"),
+                                 choiceValues = c("none", "center.mean", "center.median", "robust")
                                  )
                 ),
              column(width = 3,
@@ -219,17 +220,19 @@ ui <- function() {
                  helper(tags$div(tags$h4("Build model formula")),
                         type = "markdown", content = "build_model_formula"),
                  #list available variables
-                 tags$p("Following variables can be selected to build the model: "),
-                  tags$p(textOutput("available_modelvariables")),
-                 textInput("modelformula", label = "Design formula",
+                 tags$h5("Following variables can be selected to build the model: "),
+                  tags$div(tags$em(textOutput("available_modelvariables"))),
+                 br(),
+                 textInput("designformula", label = "Design formula",
                            placeholder = "~ var1 + var2*var3"),
+                 br(),
                  actionButton("fitModel", "Fit Model",
                               style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
 
         ),
         column(width = 7,
                tags$div(tags$h4("Design variables")),
-               tableOutput("designVariables")
+               dataTableOutput("designVariables")
                )
 
     ),
@@ -238,7 +241,7 @@ ui <- function() {
         fluidRow(
           column(width = 11,
           tags$div(tags$h4("Visualise design")),
-          plotOutput("designmatrix")
+          uiOutput("designmatrix", width = "100%")
         ))
 
     ),
@@ -290,7 +293,15 @@ ui <- function() {
         )
 
 
-             )
+             ),
+
+    #Sixth panel: detail plots of selected features
+    tabPanel("Detail plots",
+
+      tags$div(tags$h4("Select a feature in the volcano plot or the results table of the inference tab")),
+      #LinePlot
+      plotlyOutput("lineplot_feature")
+    )
     )
 )
 }

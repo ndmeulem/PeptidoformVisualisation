@@ -3,6 +3,7 @@
 export(launchPeptidoformViz)
 import(BiocManager)
 import(DT)
+import(ExploreModelMatrix)
 import(QFeatures)
 import(ggplot2)
 import(knitr)

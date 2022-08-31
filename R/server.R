@@ -3,7 +3,7 @@
 #' @param input provided by shiny
 #' @param output provided by shiny
 #' @param session provided by shiny
-#' @import tidyverse shiny shinyhelper rmarkdown knitr msqrob2 QFeatures limma plotly ggplot2 DT wesanderson BiocManager utils
+#' @import tidyverse shiny shinyhelper rmarkdown knitr msqrob2 QFeatures limma plotly ggplot2 DT wesanderson BiocManager utils ExploreModelMatrix
 
 library(shiny)
 library(shinyhelper)
@@ -151,12 +151,15 @@ server <- (function(input, output, session) {
         variables$idcols <- idcols
     }, ignoreNULL = FALSE, ignoreInit = TRUE)
 
+    #---------------
     #Preprocessing
+    #--------------
     #User will click on preprocessing button, then do preprocessing as indicated by user
     observeEvent(input$preprocess, {
       #Each time the preprocessing changes, this will be triggered,
       #so data needs to start from scratch every time
       pe2 <- variables$pe
+
       #logtransformation
       if (input$logTransform != "none"){
         pe2 <- logTransform(pe2, base = as.numeric(input$logTransform),
@@ -173,7 +176,47 @@ server <- (function(input, output, session) {
       pe2 <- pe2[rowData(pe2[["peptideLog"]])$nNonZero>=input$nnonzero,,]
 
       #Global normalisation
-      if (input$normalisationMethodGlobal !="none"){
+      #Either it is a robust normalisation, a centering or no normalisation
+      if (input$normalisationMethodGlobal == "robust"){
+        #list to store summarised values per protein
+        pe_robustval <- list()
+
+        protein_column <- colnames(rowData(pe2[["peptideLog"]]))[input$proteinColumn]
+
+        #Do not change pe2 yet, gives problems further down the line
+        pe3 <- aggregateFeatures(pe2,
+                                i = "peptideLog",
+                                fcol = protein_column,
+                                na.rm = TRUE,
+                                name = "proteinRobust",
+                                fun = MsCoreUtils::robustSummary)
+
+        #Fill out list with the summarised values
+        for (prot in unique(rowData(pe2[["peptideLog"]])[,protein_column])){
+          pe_robustval[[prot]] = assay(pe3[["proteinRobust"]])[prot,]
+        }
+
+        #Use the summarised values to get the normalised assay
+        y <- as_tibble(assay(pe2[["peptideLog"]]))
+        y_new <- tibble()
+        for (prot in unique(rowData(pe2[["peptideLog"]])[,protein_column])){
+          #pe_sub <- filterFeatures(pe2,~grepl(protein_column,pattern=prot))
+          #pe_sub <- pe2[["peptideLog"]][rowData(pe2[["peptideLog"]])[,protein_column]==prot,]
+          pe_sub <- pe2[grepl(prot,rowData(pe2[["peptideLog"]])[[protein_column]])]
+          #as_tibble is belangrijk hier, anders worden er random rijen verschoven
+          y_ <- as_tibble(assay(pe_sub[["peptideLog"]]))
+          #center assay based on the corresponding protein value
+          y_scale <- base::scale(y_, center = pe_robustval[[prot]], scale = FALSE)
+          y_new <- rbind(y_new, y_scale)
+        }
+        #Add the normalised assay as a new assay to the existing pe
+        y_assay <- SummarizedExperiment(assays=as.matrix(y_new), rowData=rowData(pe2[["peptideLog"]]), colData=colData(pe2[["peptideLog"]]))
+        pe2 <- addAssay(pe2, y_assay, name = "peptideLogNorm")
+        #Add assay link -> peptideLogNorm is linked to peptideLog
+        pe2 <- addAssayLinkOneToOne(pe2, from = "peptideLog", to = "peptideLogNorm")
+      }
+
+      else if (input$normalisationMethodGlobal != "none"){
         pe2 <- normalize(pe2,
                         i = "peptideLog",
                         name = "peptideLogNorm",
@@ -252,8 +295,10 @@ server <- (function(input, output, session) {
 
         req(input$x_axis)
         #Get data for particular protein
+        print(variables$pe2)
         proteinpe <- variables$pe2[grepl(input$protein,
                                 rowData(variables$pe2[["peptideLogNorm"]])[[input$proteinColumn]])]
+        print(proteinpe)
 
         #Normalisation + get dataset instead of QFeatures object
         #get all metadata + intensity values together in df
@@ -429,6 +474,27 @@ server <- (function(input, output, session) {
               ))
             print(boxplot_select)
             }
+    })
+
+    #Modeling tab
+    ##output possible modeling variables
+    output$available_modelvariables <- renderText(
+                                        colnames(variables$metadataFile),
+                                        sep = ", ")
+    ##output metadata
+    output$designVariables <- renderDataTable(variables$metadataFile,
+                                              options = list(
+                                                pageLength = 5
+                                              ))
+
+    ##output designmatrix
+    design <- reactive(ExploreModelMatrix::VisualizeDesign(variables$metadataFile,input$designformula))
+    ##Dit is niet wat het moet zijn, ik weet niet hoe dat gewoon de exploremodelmatrix moet worden
+    output$designmatrix <- renderUI({
+      lapply(1:length(design()[[2]]),
+             function(j){
+               renderPlot({design()[[2]][[j]]}, height = 800, width = 1400)
+             })
     })
 
 })
