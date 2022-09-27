@@ -227,7 +227,9 @@ ui <- function() {
                            placeholder = "~ var1 + var2*var3"),
                  br(),
                  actionButton("fitModel", "Fit Model",
-                              style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+                              style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                 br(),
+                 textOutput("model_fitted")
 
         ),
         column(width = 7,

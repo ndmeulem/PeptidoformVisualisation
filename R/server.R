@@ -478,9 +478,10 @@ server <- (function(input, output, session) {
 
     #Modeling tab
     ##output possible modeling variables
-    output$available_modelvariables <- renderText(
-                                        colnames(variables$metadataFile),
-                                        sep = ", ")
+    output$available_modelvariables <- renderText({
+      colnames(variables$metadataFile)},
+      sep = ", ")
+
     ##output metadata
     output$designVariables <- renderDataTable(variables$metadataFile,
                                               options = list(
@@ -497,4 +498,26 @@ server <- (function(input, output, session) {
              })
     })
 
+    ##model the data when user clicks button
+    observeEvent(input$fitModel,{
+      pe2 <- variables$pe2
+      #check whether peptideLogNorm actually exists
+      if (!"peptideLogNorm" %in% names(pe2)){
+        output$model_fitted <- renderText({"Please go through the preprocessing step first"})
+      }
+      req(pe2[["peptideLogNorm"]])
+      pe2 <- msqrob2::msqrob(object = pe2, i = "peptideLogNorm",
+                             formula = stats::as.formula(input$designformula),
+                             robust=FALSE)
+      output$model_fitted <- renderText({"Model fitting complete"})
+      variables$pe2 <- pe2
+    })
+
+    #Inference tab
+    ##output possible parameter names
+    output$available_parameters <- renderText({
+      colnames(design()$designmatrix)
+      }, sep = ", ")
+
+    ##hypothesistest
 })
